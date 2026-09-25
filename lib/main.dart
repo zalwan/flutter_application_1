@@ -35,17 +35,9 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
-  static const List<Widget> _pages = [
-    HomePage(),
-    MateriPage(),
-    ProfilePage(),
-  ];
+  static const List<Widget> _pages = [HomePage(), MateriPage(), ProfilePage()];
 
-  static const List<String> _titles = [
-    'Home',
-    'Materi',
-    'Profile',
-  ];
+  static const List<String> _titles = ['Home', 'Materi', 'Profile'];
 
   void _onItemTapped(int index) {
     setState(() {
@@ -61,10 +53,7 @@ class _MainScreenState extends State<MainScreen> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         centerTitle: true,
       ),
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: _pages,
-      ),
+      body: IndexedStack(index: _selectedIndex, children: _pages),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
         onDestinationSelected: _onItemTapped,

@@ -69,8 +69,8 @@ class MateriPage extends StatelessWidget {
               Text(
                 'Materi Mobile Programming',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 6),
               Text(
@@ -90,8 +90,7 @@ class MateriPage extends StatelessWidget {
           ),
           child: ExpansionTile(
             leading: CircleAvatar(
-              backgroundColor:
-                  Theme.of(context).colorScheme.primaryContainer,
+              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
               child: Icon(materi.icon),
             ),
             title: Text(
