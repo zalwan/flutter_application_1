@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
 
-  // Data dari data-diri.md
+  // Data diri
   final String name = 'RIZAL SURYAWAN';
   final String nim = '241011750067';
   final String jurusan = 'SISTEM INFORMASI';
   final String matkuliah = 'MOBILE PROGRAMMING';
-  final String kelas = 'SIFE002';
+  final String kelas = '04SIFE002';
 
   @override
   Widget build(BuildContext context) {
@@ -43,9 +43,9 @@ class ProfilePage extends StatelessWidget {
                 Text(
                   name,
                   textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -71,16 +71,8 @@ class ProfilePage extends StatelessWidget {
             title: 'Mata Kuliah',
             value: matkuliah,
           ),
-          _InfoTile(
-            icon: Icons.badge_outlined,
-            title: 'NIM',
-            value: nim,
-          ),
-          _InfoTile(
-            icon: Icons.group_outlined,
-            title: 'Kelas',
-            value: kelas,
-          ),
+          _InfoTile(icon: Icons.badge_outlined, title: 'NIM', value: nim),
+          _InfoTile(icon: Icons.group_outlined, title: 'Kelas', value: kelas),
           const SizedBox(height: 8),
           Card(
             elevation: 0,
@@ -132,24 +124,16 @@ class _InfoTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 1,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(14),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: ListTile(
         leading: CircleAvatar(
           backgroundColor: Theme.of(context).colorScheme.primaryContainer,
           child: Icon(icon, size: 20),
         ),
-        title: Text(
-          title,
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
+        title: Text(title, style: Theme.of(context).textTheme.bodySmall),
         subtitle: Text(
           value,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 15,
-          ),
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
         ),
       ),
     );
