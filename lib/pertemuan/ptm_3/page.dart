@@ -8,16 +8,34 @@ class Pertemuan3Page extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Pertemuan 3')),
-      body: const Center(
-        child: Padding(
-          padding: EdgeInsets.all(24),
-          child: Text(
-            'Halaman template untuk Pertemuan 3. '
-            'Silakan kembangkan materi di file ini.',
-            textAlign: TextAlign.center,
+      appBar: AppBar(
+        title: const Text('Basic List'),
+        backgroundColor: Colors.red,
+        foregroundColor: Colors.white,
+      ),
+      body: ListView(
+        children: [
+          ListTile(
+            leading: Icon(Icons.alarm),
+            title: Text('Alarm'),
+            subtitle: Text('This is an alarm'),
           ),
-        ),
+          ListTile(
+            leading: Icon(Icons.phone),
+            title: Text('Phone'),
+            subtitle: Text('This is a phone'),
+          ),
+          ListTile(
+            leading: Icon(Icons.camera),
+            title: Text('Camera'),
+            subtitle: Text('This is a camera'),
+          ),
+          ListTile(
+            leading: Icon(Icons.message),
+            title: Text('Message'),
+            subtitle: Text('This is a message'),
+          ),
+        ],
       ),
     );
   }
