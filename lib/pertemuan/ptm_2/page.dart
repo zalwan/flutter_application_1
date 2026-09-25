@@ -13,8 +13,8 @@ class Pertemuan2Page extends StatelessWidget {
         child: Padding(
           padding: EdgeInsets.all(24),
           child: Text(
-            'Halaman template untuk Pertemuan 2. '
-            'Silakan kembangkan materi di file ini.',
+            'Membuat 3 pages HOME, MATERI, dan PROFILE',
+            // 'Silakan kembangkan materi di file ini.',
             textAlign: TextAlign.center,
           ),
         ),
