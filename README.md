@@ -1,17 +1,42 @@
-# flutter_application_1
+# Mobile Programming UNPAM
 
-A new Flutter project.
+Aplikasi Flutter untuk menyimpan halaman tugas atau materi berdasarkan pertemuan. Halaman Home membaca registry hasil generator dan menampilkan setiap pertemuan sebagai tombol yang dapat dibuka.
 
-## Getting Started
+## Menambah Pertemuan
 
-This project is a starting point for a Flutter application.
+Cara yang direkomendasikan adalah menggunakan pembuat template:
 
-A few resources to get you started if this is your first Flutter project:
+```bash
+dart run tool/create_pertemuan.dart 4
+```
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+Perintah tersebut membuat `lib/pertemuan/ptm_4/page.dart` dan langsung memperbarui registry. Ganti angka `4` dengan nomor pertemuan yang ingin ditambahkan.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Setiap `page.dart` harus menyediakan fungsi berikut:
+
+```dart
+Widget buildPertemuanPage();
+```
+
+Folder pertemuan harus memakai format `ptm_<nomor>`, misalnya `ptm_5`. Nomor harus berupa bilangan bulat positif tanpa nol di depan.
+
+Jika folder dibuat atau diubah secara manual, perbarui registry dengan:
+
+```bash
+dart run tool/generate_pertemuan.dart
+```
+
+File `lib/pertemuan/generated/pertemuan_registry.g.dart` dibuat otomatis dan tidak boleh diedit secara manual.
+
+## Menjalankan Aplikasi
+
+```bash
+flutter run
+```
+
+## Pemeriksaan Project
+
+```bash
+flutter analyze
+flutter test
+```
