@@ -21,10 +21,7 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('pertemuan-2-button')));
     await tester.pumpAndSettle();
 
-    expect(
-      find.textContaining('Halaman template untuk Pertemuan 2.'),
-      findsOneWidget,
-    );
+    expect(find.text('Pertemuan 2'), findsOneWidget);
     expect(find.byType(BackButton), findsOneWidget);
   });
 }
