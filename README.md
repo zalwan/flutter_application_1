@@ -1,40 +1,40 @@
 # Mobile Programming UNPAM
 
-Aplikasi Flutter untuk menyimpan halaman tugas atau materi berdasarkan pertemuan. Halaman Home membaca registry hasil generator dan menampilkan setiap pertemuan sebagai tombol yang dapat dibuka.
+A Flutter application for organizing assignments or learning materials by meeting. The Home page reads a generated registry and displays each meeting as a clickable button.
 
-## Menambah Pertemuan
+## Adding a Meeting
 
-Cara yang direkomendasikan adalah menggunakan pembuat template:
+The recommended approach is to use the template generator:
 
 ```bash
 dart run tool/create_pertemuan.dart 4
 ```
 
-Perintah tersebut membuat `lib/pertemuan/ptm_4/page.dart` dan langsung memperbarui registry. Ganti angka `4` dengan nomor pertemuan yang ingin ditambahkan.
+This command creates `lib/pertemuan/ptm_4/page.dart` and immediately updates the registry. Replace `4` with the meeting number you want to add.
 
-Setiap `page.dart` harus menyediakan fungsi berikut:
+Every `page.dart` file must expose the following function:
 
 ```dart
 Widget buildPertemuanPage();
 ```
 
-Folder pertemuan harus memakai format `ptm_<nomor>`, misalnya `ptm_5`. Nomor harus berupa bilangan bulat positif tanpa nol di depan.
+Meeting folders must use the `ptm_<number>` format, such as `ptm_5`. The number must be a positive integer without leading zeros.
 
-Jika folder dibuat atau diubah secara manual, perbarui registry dengan:
+If you create or modify a folder manually, update the registry with:
 
 ```bash
 dart run tool/generate_pertemuan.dart
 ```
 
-File `lib/pertemuan/generated/pertemuan_registry.g.dart` dibuat otomatis dan tidak boleh diedit secara manual.
+The `lib/pertemuan/generated/pertemuan_registry.g.dart` file is generated automatically and must not be edited manually.
 
-## Menjalankan Aplikasi
+## Running the Application
 
 ```bash
 flutter run
 ```
 
-## Pemeriksaan Project
+## Project Checks
 
 ```bash
 flutter analyze
