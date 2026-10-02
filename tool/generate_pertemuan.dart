@@ -14,19 +14,26 @@ class PertemuanFolder {
     required this.number,
     required this.name,
     required this.directory,
+    required this.kind,
   });
 
   final int number;
   final String name;
   final Directory directory;
+  final String kind; // 'ptm' atau 'tugas'
+
+  String get alias => '$kind$number';
+
+  String get judul =>
+      kind == 'tugas' ? 'Tugas Pertemuan $number' : 'Pertemuan $number';
 }
 
 List<PertemuanFolder> discoverPertemuanFolders(Directory pertemuanRoot) {
   if (!pertemuanRoot.existsSync()) return [];
 
-  final canonicalName = RegExp(r'^ptm_([1-9]\d*)$');
+  final canonicalName = RegExp(r'^(ptm|tugas)_([1-9]\d*)$');
   final folders = <PertemuanFolder>[];
-  final numbers = <int>{};
+  final keys = <String>{};
 
   for (final entity in pertemuanRoot.listSync(followLinks: false)) {
     if (entity is! Directory) continue;
@@ -34,18 +41,22 @@ List<PertemuanFolder> discoverPertemuanFolders(Directory pertemuanRoot) {
     final name = entity.uri.pathSegments
         .where((segment) => segment.isNotEmpty)
         .last;
-    if (!name.startsWith('ptm')) continue;
+    if (!name.startsWith('ptm') && !name.startsWith('tugas')) continue;
 
     final match = canonicalName.firstMatch(name);
     if (match == null) {
       throw PertemuanGenerationException(
-        'Nama folder pertemuan tidak valid: ${entity.path}',
+        'Nama folder tidak valid: ${entity.path} '
+        '(gunakan ptm_<nomor> atau tugas_<nomor>)',
       );
     }
 
-    final number = int.parse(match.group(1)!);
-    if (!numbers.add(number)) {
-      throw PertemuanGenerationException('Nomor pertemuan duplikat: $number');
+    final kind = match.group(1)!;
+    final number = int.parse(match.group(2)!);
+    if (!keys.add('$kind$number')) {
+      throw PertemuanGenerationException(
+        'Duplikat folder: $kind $number',
+      );
     }
 
     if (!File('${entity.path}/page.dart').existsSync()) {
@@ -54,21 +65,34 @@ List<PertemuanFolder> discoverPertemuanFolders(Directory pertemuanRoot) {
       );
     }
 
-    folders.add(PertemuanFolder(number: number, name: name, directory: entity));
+    folders.add(PertemuanFolder(
+      number: number,
+      name: name,
+      directory: entity,
+      kind: kind,
+    ));
   }
 
-  folders.sort((a, b) => a.number.compareTo(b.number));
+  folders.sort((a, b) {
+    final byNumber = a.number.compareTo(b.number);
+    if (byNumber != 0) return byNumber;
+    return a.kind == 'ptm' ? -1 : 1;
+  });
   return folders;
 }
 
 String buildRegistrySource(List<PertemuanFolder> folders) {
-  final ordered = [...folders]..sort((a, b) => a.number.compareTo(b.number));
-  final numbers = <int>{};
+  final ordered = [...folders]..sort((a, b) {
+    final byNumber = a.number.compareTo(b.number);
+    if (byNumber != 0) return byNumber;
+    return a.kind == 'ptm' ? -1 : 1;
+  });
 
+  final aliases = <String>{};
   for (final folder in ordered) {
-    if (!numbers.add(folder.number)) {
+    if (!aliases.add(folder.alias)) {
       throw PertemuanGenerationException(
-        'Nomor pertemuan duplikat: ${folder.number}',
+        'Duplikat folder: ${folder.kind} ${folder.number}',
       );
     }
   }
@@ -80,7 +104,7 @@ String buildRegistrySource(List<PertemuanFolder> folders) {
 
   for (final folder in ordered) {
     buffer.writeln(
-      "import '../${folder.name}/page.dart' as ptm${folder.number};",
+      "import '../${folder.name}/page.dart' as ${folder.alias};",
     );
   }
 
@@ -92,8 +116,8 @@ String buildRegistrySource(List<PertemuanFolder> folders) {
     buffer
       ..writeln('  PertemuanItem(')
       ..writeln('    nomor: ${folder.number},')
-      ..writeln("    judul: 'Pertemuan ${folder.number}',")
-      ..writeln('    pageBuilder: ptm${folder.number}.buildPertemuanPage,')
+      ..writeln("    judul: '${folder.judul}',")
+      ..writeln('    pageBuilder: ${folder.alias}.buildPertemuanPage,')
       ..writeln('  ),');
   }
 

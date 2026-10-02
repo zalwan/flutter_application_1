@@ -18,7 +18,23 @@ Every `page.dart` file must expose the following function:
 Widget buildPertemuanPage();
 ```
 
-Meeting folders must use the `ptm_<number>` format, such as `ptm_5`. The number must be a positive integer without leading zeros.
+Meeting folders must use the `ptm_<number>` format, such as `ptm_5`, and
+assignment folders use the `tugas_<number>` format, such as `tugas_4`. The
+number must be a positive integer without leading zeros. A `ptm_<number>`
+folder appears as "Pertemuan N" and a `tugas_<number>` folder appears as
+"Tugas Pertemuan N".
+
+## Adding an Assignment
+
+Create a new assignment with:
+
+```bash
+dart run tool/create_tugas.dart 4
+```
+
+This creates `lib/pertemuan/tugas_4/page.dart` and updates the registry.
+The Pertemuan 4 assignment lives in `lib/tugas/daftar_menu_page.dart` and is
+exposed through `lib/pertemuan/tugas_4/page.dart`.
 
 If you create or modify a folder manually, update the registry with:
 

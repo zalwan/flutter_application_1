@@ -56,6 +56,7 @@ void main() {
       number: 2,
       name: 'ptm_2',
       directory: Directory('${projectRoot.path}/lib/pertemuan/ptm_2'),
+      kind: 'ptm',
     );
 
     expect(
