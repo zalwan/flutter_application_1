@@ -20,6 +20,7 @@ class _Pertemuan5PageState extends State<Pertemuan5Page> {
   double _scale = 1.0;
   double _baseScale = 1.0;
   Offset _panOffset = Offset.zero;
+  bool _isLampOn = false;
 
   void _updateGesture(String message) {
     setState(() => _lastGesture = message);
@@ -252,6 +253,107 @@ class _Pertemuan5PageState extends State<Pertemuan5Page> {
               ),
             ),
             const SizedBox(height: 16),
+            _SectionTitle(
+              title: '5. Lampu On/Off (Tap Icon + Button)',
+              subtitle:
+                  'Klik ikon lampu atau tombol di bawahnya untuk ubah warna.',
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(
+                vertical: 24,
+                horizontal: 16,
+              ),
+              decoration: BoxDecoration(
+                color: _isLampOn
+                    ? Colors.amber.shade100
+                    : Colors.grey.shade200,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: _isLampOn
+                      ? Colors.amber.shade300
+                      : Colors.grey.shade300,
+                ),
+              ),
+              child: Column(
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      setState(() => _isLampOn = !_isLampOn);
+                      _updateGesture(
+                        _isLampOn ? 'Lampu DINYALAKAN' : 'Lampu DIMATIKAN',
+                      );
+                    },
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 250),
+                      width: 110,
+                      height: 110,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: _isLampOn ? Colors.amber : Colors.grey.shade400,
+                        boxShadow: _isLampOn
+                            ? [
+                                BoxShadow(
+                                  color: Colors.amber.withValues(alpha: 0.6),
+                                  blurRadius: 30,
+                                  spreadRadius: 8,
+                                ),
+                              ]
+                            : [],
+                      ),
+                      child: Icon(
+                        _isLampOn
+                            ? Icons.lightbulb
+                            : Icons.lightbulb_outline,
+                        size: 64,
+                        color: _isLampOn ? Colors.white : Colors.white70,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    _isLampOn ? 'Lampu MENYALA' : 'Lampu MATI',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  const Text(
+                    'Klik ikon lampu di atas atau tombol di bawah',
+                    style: TextStyle(fontSize: 12),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 12),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      setState(() => _isLampOn = !_isLampOn);
+                      _updateGesture(
+                        _isLampOn ? 'Lampu DINYALAKAN' : 'Lampu DIMATIKAN',
+                      );
+                    },
+                    icon: Icon(
+                      _isLampOn
+                          ? Icons.power_off
+                          : Icons.power_settings_new,
+                    ),
+                    label: Text(
+                      _isLampOn ? 'Matikan Lampu' : 'Nyalakan Lampu',
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _isLampOn
+                          ? Colors.grey.shade700
+                          : Colors.amber.shade700,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 12,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
             OutlinedButton.icon(
               onPressed: () {
                 setState(() {
@@ -263,6 +365,7 @@ class _Pertemuan5PageState extends State<Pertemuan5Page> {
                   _swipeDirection = '-';
                   _scale = 1.0;
                   _panOffset = Offset.zero;
+                  _isLampOn = false;
                 });
               },
               icon: const Icon(Icons.refresh),
