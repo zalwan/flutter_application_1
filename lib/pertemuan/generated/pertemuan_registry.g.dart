@@ -6,6 +6,7 @@ import '../ptm_3/page.dart' as ptm3;
 import '../ptm_4/page.dart' as ptm4;
 import '../tugas_4/page.dart' as tugas4;
 import '../ptm_5/page.dart' as ptm5;
+import '../tugas_6/page.dart' as tugas6;
 
 final List<PertemuanItem> daftarPertemuan = [
   PertemuanItem(
@@ -32,5 +33,10 @@ final List<PertemuanItem> daftarPertemuan = [
     nomor: 5,
     judul: 'Pertemuan 5',
     pageBuilder: ptm5.buildPertemuanPage,
+  ),
+  PertemuanItem(
+    nomor: 6,
+    judul: 'Tugas Pertemuan 6',
+    pageBuilder: tugas6.buildPertemuanPage,
   ),
 ];
