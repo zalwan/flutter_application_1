@@ -28,4 +28,14 @@ class AppConstants {
   // Folder aset lokal.
   static const String profileImage = 'assets/images/profile/profile_rizal.png';
   static const String logoImage = 'assets/images/brand/logo_rizal_docs.png';
+
+  /// Sampul dokumen yang dipakai sebagai data awal (seed) pada dashboard.
+  static const List<String> coverImages = [
+    'assets/images/covers/cover_01.png',
+    'assets/images/covers/cover_02.png',
+    'assets/images/covers/cover_03.png',
+    'assets/images/covers/cover_04.png',
+    'assets/images/covers/cover_05.png',
+    'assets/images/covers/cover_06.png',
+  ];
 }

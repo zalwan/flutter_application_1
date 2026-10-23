@@ -26,17 +26,14 @@ class SplashPage extends StatelessWidget {
             children: [
               const Spacer(),
               Container(
-                width: 104,
-                height: 104,
+                width: 112,
+                height: 112,
+                padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.14),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
-                  Icons.menu_book_rounded,
-                  color: Colors.white,
-                  size: 52,
-                ),
+                child: Image.asset(AppConstants.logoImage),
               ),
               const SizedBox(height: 24),
               const Text(
