@@ -1,4 +1,4 @@
-package com.example.flutter_application_1
+package com.rizal.rizal_apps
 
 import io.flutter.embedding.android.FlutterActivity
 
