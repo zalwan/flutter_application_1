@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'core/constants/app_constants.dart';
 import 'core/theme/app_theme.dart';
@@ -14,6 +15,14 @@ class RizalDocsApp extends StatelessWidget {
       title: AppConstants.appName,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
+      // Header seluruh halaman berwarna biru tua, sehingga ikon status bar
+      // dibuat terang agar tetap terbaca.
+      builder: (BuildContext context, Widget? child) {
+        return AnnotatedRegion<SystemUiOverlayStyle>(
+          value: SystemUiOverlayStyle.light,
+          child: child ?? const SizedBox.shrink(),
+        );
+      },
       home: const SplashPage(),
     );
   }
