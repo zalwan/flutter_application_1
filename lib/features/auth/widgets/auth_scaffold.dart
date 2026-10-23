@@ -55,51 +55,54 @@ class AuthScaffold extends StatelessWidget {
                         tooltip: 'Kembali',
                       ),
                     ),
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(
-                      24,
-                      showBackButton ? 52 : 32,
-                      24,
-                      showBackButton ? 26 : 36,
-                    ),
-                    child: Column(
-                      children: [
-                        Container(
-                          width: 104,
-                          height: 104,
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.white.withValues(alpha: 0.18),
-                          ),
-                          child: ClipOval(
-                            child: Image.asset(
-                              AppConstants.profileImage,
-                              fit: BoxFit.cover,
+                  SizedBox(
+                    width: double.infinity,
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(
+                        24,
+                        showBackButton ? 52 : 32,
+                        24,
+                        showBackButton ? 26 : 36,
+                      ),
+                      child: Column(
+                        children: [
+                          Container(
+                            width: 104,
+                            height: 104,
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.white.withValues(alpha: 0.18),
+                            ),
+                            child: ClipOval(
+                              child: Image.asset(
+                                AppConstants.profileImage,
+                                fit: BoxFit.cover,
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          headerTitle ?? AppConstants.appName,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 24,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 0.3,
+                          const SizedBox(height: 16),
+                          Text(
+                            headerTitle ?? AppConstants.appName,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 24,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 0.3,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          AppConstants.appTagline,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.75),
-                            fontSize: 13,
+                          const SizedBox(height: 6),
+                          Text(
+                            AppConstants.appTagline,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.75),
+                              fontSize: 13,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ],
