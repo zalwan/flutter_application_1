@@ -20,7 +20,7 @@ class AppConstants {
 
   // Konfigurasi database SQLite.
   static const String databaseName = 'rizal_docs.db';
-  static const int databaseVersion = 1;
+  static const int databaseVersion = 2;
 
   static const String usersTable = 'users';
   static const String documentsTable = 'documents';
