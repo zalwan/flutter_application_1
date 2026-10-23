@@ -73,10 +73,7 @@ class AppTheme {
           foregroundColor: Colors.white,
           minimumSize: const Size.fromHeight(52),
           shape: RoundedRectangleBorder(borderRadius: radius),
-          textStyle: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
+          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
@@ -85,10 +82,7 @@ class AppTheme {
           minimumSize: const Size.fromHeight(50),
           side: const BorderSide(color: border),
           shape: RoundedRectangleBorder(borderRadius: radius),
-          textStyle: const TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
-          ),
+          textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
@@ -113,10 +107,7 @@ class AppTheme {
           color: textPrimary,
           fontWeight: FontWeight.w700,
         ),
-        titleMedium: TextStyle(
-          color: textPrimary,
-          fontWeight: FontWeight.w600,
-        ),
+        titleMedium: TextStyle(color: textPrimary, fontWeight: FontWeight.w600),
         bodyMedium: TextStyle(color: textPrimary, height: 1.5),
         bodySmall: TextStyle(color: textSecondary, height: 1.4),
       ),

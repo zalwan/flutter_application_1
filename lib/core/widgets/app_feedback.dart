@@ -16,8 +16,12 @@ void showAppSnackBar(
         content: Row(
           children: [
             Icon(
-              isError ? Icons.error_outline_rounded : Icons.check_circle_outline,
-              color: isError ? const Color(0xFFFCA5A5) : const Color(0xFF6EE7B7),
+              isError
+                  ? Icons.error_outline_rounded
+                  : Icons.check_circle_outline,
+              color: isError
+                  ? const Color(0xFFFCA5A5)
+                  : const Color(0xFF6EE7B7),
               size: 20,
             ),
             const SizedBox(width: 10),

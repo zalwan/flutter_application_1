@@ -95,10 +95,7 @@ class _RegisterPageState extends State<RegisterPage> {
               children: [
                 const Text(
                   'Registrasi Pengguna',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 6),
                 const Text(

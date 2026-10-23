@@ -39,10 +39,7 @@ class _DashboardPageState extends State<DashboardPage> {
       case 3:
         return ProfilePage(user: widget.user);
       default:
-        return HomeTab(
-          user: widget.user,
-          onNavigate: _onDestinationSelected,
-        );
+        return HomeTab(user: widget.user, onNavigate: _onDestinationSelected);
     }
   }
 

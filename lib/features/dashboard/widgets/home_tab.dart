@@ -5,6 +5,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../models/document.dart';
 import '../../../models/user.dart';
 import '../../../repositories/document_repository.dart';
+import '../../documents/document_detail_page.dart';
 import '../../documents/widgets/document_card.dart';
 
 /// Konten utama tab Beranda pada dashboard.
@@ -14,11 +15,7 @@ import '../../documents/widgets/document_card.dart';
 /// dibangun dengan [ListView.builder] sehingga halaman dapat di-scroll dan
 /// data ditampilkan secara dinamis.
 class HomeTab extends StatefulWidget {
-  const HomeTab({
-    super.key,
-    required this.user,
-    required this.onNavigate,
-  });
+  const HomeTab({super.key, required this.user, required this.onNavigate});
 
   final User user;
   final ValueChanged<int> onNavigate;
@@ -73,6 +70,19 @@ class _HomeTabState extends State<HomeTab> {
     }
   }
 
+  Future<void> _openDetail(Document document) async {
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (BuildContext context) =>
+            DocumentDetailPage(document: document),
+      ),
+    );
+
+    if (!mounted) return;
+    // Memuat ulang data agar status favorit pada daftar tetap sinkron.
+    await _loadDocuments();
+  }
+
   List<String> get _categories {
     final Set<String> categories = <String>{
       for (final Document document in _documents) document.category,
@@ -121,7 +131,10 @@ class _HomeTabState extends State<HomeTab> {
           final Document document = documents[index - 1];
           return Padding(
             padding: const EdgeInsets.only(bottom: 12),
-            child: DocumentCard(document: document),
+            child: DocumentCard(
+              document: document,
+              onTap: () => _openDetail(document),
+            ),
           );
         },
       ),

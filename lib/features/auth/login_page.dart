@@ -78,12 +78,11 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _openRegisterPage() async {
-    final String? registeredUsername = await Navigator.of(context)
-        .push<String>(
-          MaterialPageRoute<String>(
-            builder: (BuildContext context) => const RegisterPage(),
-          ),
-        );
+    final String? registeredUsername = await Navigator.of(context).push<String>(
+      MaterialPageRoute<String>(
+        builder: (BuildContext context) => const RegisterPage(),
+      ),
+    );
 
     if (!mounted) return;
     if (registeredUsername != null && registeredUsername.isNotEmpty) {
@@ -172,10 +171,7 @@ class _LoginPageState extends State<LoginPage> {
               padding: const EdgeInsets.symmetric(horizontal: 12),
               child: Text(
                 'Belum punya akun?',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey.shade600,
-                ),
+                style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
               ),
             ),
             const Expanded(child: Divider()),

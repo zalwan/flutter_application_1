@@ -37,11 +37,7 @@ class SettingsPage extends StatelessWidget {
           ),
           child: const Column(
             children: [
-              Icon(
-                Icons.tune_rounded,
-                size: 42,
-                color: AppTheme.textSecondary,
-              ),
+              Icon(Icons.tune_rounded, size: 42, color: AppTheme.textSecondary),
               SizedBox(height: 12),
               Text(
                 'Menu pengelolaan dokumen akan tersedia di sini.',
