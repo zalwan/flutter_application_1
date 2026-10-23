@@ -40,4 +40,27 @@ class AppValidators {
     }
     return null;
   }
+
+  /// Validator umum untuk field teks yang wajib diisi.
+  static String? requiredField(String? value, String label) {
+    if (value == null || value.trim().isEmpty) {
+      return '$label tidak boleh kosong';
+    }
+    return null;
+  }
+
+  /// Validator tahun terbit dokumen (1900 - 2100).
+  static String? tahun(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Tahun tidak boleh kosong';
+    }
+    final int? year = int.tryParse(value.trim());
+    if (year == null) {
+      return 'Tahun harus berupa angka';
+    }
+    if (year < 1900 || year > 2100) {
+      return 'Tahun harus di antara 1900 dan 2100';
+    }
+    return null;
+  }
 }
