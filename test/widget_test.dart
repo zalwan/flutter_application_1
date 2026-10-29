@@ -1,30 +1,60 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:flutter_application_1/main.dart';
+import 'package:flutter_application_1/models/post.dart';
+import 'package:flutter_application_1/screens/post_list_screen.dart';
+import 'package:flutter_application_1/services/post_api_service.dart';
+
+class _FakeApiService extends PostApiService {
+  _FakeApiService({this.error});
+
+  final ApiException? error;
+
+  @override
+  Future<List<Post>> fetchPosts() async {
+    if (error != null) throw error!;
+    return [
+      Post(
+        slug: 'contoh-artikel',
+        title: 'Contoh Artikel',
+        description: 'Deskripsi artikel untuk pengujian.',
+        publishedAt: DateTime(2026, 8, 14),
+        tags: const ['Flutter', 'API'],
+        readingMinutes: 5,
+        url: 'https://zal.pages.dev/blog/contoh-artikel',
+      ),
+    ];
+  }
+}
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('menampilkan daftar artikel saat API berhasil', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(home: PostListScreen(apiService: _FakeApiService())),
+    );
+    await tester.pumpAndSettle();
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    expect(find.text('Contoh Artikel'), findsOneWidget);
+    expect(find.text('14 Agu 2026'), findsOneWidget);
+    expect(find.text('5 mnt baca'), findsOneWidget);
+  });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+  testWidgets('menampilkan pesan error saat API gagal', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: PostListScreen(
+          apiService: _FakeApiService(
+            error: const ApiException(
+              ApiErrorKind.network,
+              'Tidak ada koneksi internet.',
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(find.text('Tidak ada koneksi internet.'), findsOneWidget);
+    expect(find.text('Coba lagi'), findsOneWidget);
   });
 }
