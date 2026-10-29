@@ -34,6 +34,10 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
+  # HTTP client untuk memanggil REST API.
+  http: ^1.2.0
+  # Membuka isi artikel langsung di dalam app (in-app WebView).
+  webview_flutter: ^4.10.0
 
 dev_dependencies:
   flutter_test:
