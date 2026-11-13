@@ -2,11 +2,14 @@ plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
+    // Firebase/FCM: wajib ada google-services.json di folder android/app/.
+    id("com.google.gms.google-services")
 }
 
 android {
     namespace = "com.example.flutter_application_1"
-    compileSdk = flutter.compileSdkVersion
+    // permission_handler_android requires Android SDK 37 (backward compatible).
+    compileSdk = 37
     ndkVersion = flutter.ndkVersion
 
     compileOptions {

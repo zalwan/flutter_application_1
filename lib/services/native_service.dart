@@ -216,6 +216,7 @@ class NativeService {
     if (token == null || token.isEmpty) {
       return;
     }
+    debugPrint('FCM registration token: $token');
     final client = Supabase.instance.client;
     final user = client.auth.currentUser;
     if (user == null) {
