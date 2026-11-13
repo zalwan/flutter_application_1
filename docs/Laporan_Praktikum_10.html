@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<base href="file:///C:/Users/suryawan/Dev/labs/flutter_application_1/docs/">
+<title>Laporan Praktikum 10 - Rizal Suryawan</title>
+<style>
+  @page { size: A4; margin: 18mm 15mm; }
+  * { box-sizing: border-box; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; color: #222; font-size: 11pt; line-height: 1.45; margin: 0; }
+  h1 { font-size: 17pt; margin: 0 0 4px; }
+  h2 { font-size: 13.5pt; color: #5b3fa8; border-bottom: 2px solid #5b3fa8; padding-bottom: 3px; margin: 22px 0 10px; }
+  h3 { font-size: 11.5pt; margin: 14px 0 6px; }
+  p { margin: 6px 0; }
+  table { border-collapse: collapse; width: 100%; margin: 8px 0; }
+  th, td { border: 1px solid #bbb; padding: 4px 8px; font-size: 9.5pt; vertical-align: top; text-align: left; }
+  th { background: #eee7f7; }
+  pre { background: #f4f2f9; border: 1px solid #d8d2ea; padding: 8px 10px; font-size: 8.2pt; font-family: Consolas, monospace; white-space: pre-wrap; margin: 6px 0; }
+  code { font-family: Consolas, monospace; background: #f4f2f9; padding: 0 3px; font-size: 9pt; }
+  .shotrow td { border: none; padding: 4px 6px; text-align: center; }
+  .shotrow img { width: 100%; border: 1px solid #ccc; border-radius: 4px; }
+  .pair td { border: none; padding: 3px 6px; vertical-align: middle; }
+  .pair img { width: 100%; max-width: 260px; border: 1px solid #ccc; border-radius: 4px; }
+  .cap { font-size: 8.8pt; color: #444; margin-top: 3px; }
+  .expl { font-size: 9.5pt; text-align: left; }
+  .narr { background: #f8f6fc; border-left: 4px solid #5b3fa8; padding: 8px 12px; }
+  .meta { color: #555; font-size: 10pt; }
+  .break { page-break-before: always; }
+  .nobreak { page-break-inside: avoid; }
+</style>
+</head>
+<body>
+
+<h1>Laporan Praktikum Pemrograman Mobile 10</h1>
+<p class="meta"><b>Nama:</b> Rizal Suryawan &nbsp;|&nbsp; <b>Topik:</b> Tab Layout, Kamera, GPS &amp; Push Notification (FCM) &nbsp;|&nbsp; <b>Tanggal:</b> 13 November 2026</p>
+
+<h2>1. Dependencies &amp; Konfigurasi Backend</h2>
+<table>
+<tr><th>Package</th><th>Versi</th><th>Fungsi</th></tr>
+<tr><td>image_picker</td><td>1.2.4</td><td>Membuka aplikasi kamera sistem dan mengambil file hasil jepretan</td></tr>
+<tr><td>geolocator</td><td>14.1.2</td><td>Membaca posisi GPS perangkat (latitude/longitude)</td></tr>
+<tr><td>permission_handler</td><td>13.0.2</td><td>Meminta izin runtime: kamera, lokasi presisi, POST_NOTIFICATIONS</td></tr>
+<tr><td>firebase_core</td><td>5.1.0</td><td>Inisialisasi Firebase</td></tr>
+<tr><td>firebase_messaging</td><td>17.0.1</td><td>Push notification FCM (register token, listener pesan)</td></tr>
+<tr><td>provider</td><td>6.1.5+1</td><td>State management draft tugas (ChangeNotifier + Consumer)</td></tr>
+</table>
+<p><b>Konfigurasi backend Supabase</b> (migration <code>supabase/migration_ptm10.sql</code>):</p>
+<ul>
+<li>4 kolom baru pada tabel <code>todos</code>: <code>description</code>, <code>photo_url</code>, <code>latitude</code>, <code>longitude</code>.</li>
+<li>Storage bucket publik <code>todo-photos</code> + 4 policy RLS (select/insert/update/delete) — pengguna hanya boleh mengakses folder bernama <code>user_id</code>-nya sendiri.</li>
+<li>Tabel <code>fcm_tokens</code> (user_id, token, updated_at) dengan RLS per-user untuk menyimpan registration ID FCM.</li>
+</ul>
+<p><b>Konfigurasi Firebase (Android):</b> project <code>todo-flutter-ptm10</code>, aplikasi dengan package name <code>com.example.flutter_application_1</code>, file <code>google-services.json</code> di <code>android/app/</code>, plugin Gradle <code>com.google.gms.google-services</code> 4.4.2, serta meta-data <code>firebase_messaging_installation_id_enabled=true</code> pada AndroidManifest (wajib untuk API <code>register()</code> firebase_messaging 17). <code>compileSdk</code> dinaikkan ke 37 sesuai syarat <code>permission_handler_android</code>.</p>
+
+<h2>2. Kode Navigasi (TabBar)</h2>
+<p><code>lib/screens/home_screen.dart</code> — HomeScreen menggunakan <code>DefaultTabController</code> dengan dua tab; TodoScreen direfactor menjadi <code>TodoListTab</code> (tanpa Scaffold) agar dapat disematkan di TabBarView. Setelah tugas berhasil disimpan, <code>NewTaskScreen</code> memanggil <code>DefaultTabController.maybeOf(context)?.animateTo(0)</code> untuk berpindah ke tab daftar.</p>
+<pre>DefaultTabController(
+  length: 2,
+  child: Scaffold(
+    appBar: AppBar(
+      title: const Text('To-Do List'),
+      bottom: const TabBar(tabs: [
+        Tab(icon: Icon(Icons.list), text: 'List Tugas'),
+        Tab(icon: Icon(Icons.task_alt), text: 'New Task'),
+      ]),
+    ),
+    body: const TabBarView(children: [TodoListTab(), NewTaskScreen()]),
+  ),
+)</pre>
+
+<h2>3. Kode Native Service</h2>
+<p><code>lib/services/native_service.dart</code> memusatkan seluruh akses hardware melalui plugin:</p>
+<pre>// Izin runtime (permission_handler)
+final status = await Permission.camera.request();   // juga locationWhenInUse, notifications
+
+// Kamera (image_picker)
+final photo = await ImagePicker().pickImage(
+    source: ImageSource.camera, maxWidth: 1280, imageQuality: 80);
+
+// GPS (geolocator 14)
+final position = await Geolocator.getCurrentPosition(
+    locationSettings: LocationSettings(accuracy: LocationAccuracy.high));
+
+// Upload foto (Supabase Storage)
+final path = '${user.id}/${DateTime.now().millisecondsSinceEpoch}.jpg';
+await client.storage.from('todo-photos').uploadBinary(path, bytes,
+    fileOptions: const FileOptions(contentType: 'image/jpeg'));
+final url = client.storage.from('todo-photos').getPublicUrl(path);
+
+// FCM (firebase_messaging 17)
+await messaging.requestPermission();
+messaging.onRegistered.listen(saveMessagingToken);  // token -> tabel fcm_tokens
+await messaging.register();
+FirebaseMessaging.onMessage.listen(onForegroundMessage);
+// Tanpa google-services.json: try/catch -> "Firebase not configured, FCM disabled"</pre>
+
+<h2>4. Kode Form UI</h2>
+<p><code>lib/screens/new_task_screen.dart</code> + <code>lib/providers/task_draft_provider.dart</code>. Form dibungkus <code>Consumer&lt;TaskDraftProvider&gt;</code>; state draft menyimpan <code>photoPath</code>, <code>latitude</code>, <code>longitude</code>. Tombol <b>Ambil Foto</b> memanggil <code>draft.capturePhoto()</code> lalu menampilkan preview <code>Image.file</code>; tombol <b>Dapat Lokasi</b> memanggil <code>draft.fetchLocation()</code> dan menampilkan koordinat terkunci; tombol <b>Simpan Tugas</b> memanggil <code>draft.submit()</code> yang mengunggah foto ke Storage, menyisipkan baris ke <code>todos</code> dengan null-aware element (<code>'photo_url': ?photoUrl</code>, <code>'latitude': ?_latitude</code>), me-reset draft, dan berpindah ke tab daftar. Kegagalan menghasilkan SnackBar pesan error.</p>
+
+<h2 class="break">5. Bukti Screenshot &amp; Penjelasan Singkat</h2>
+
+<h3>5.1 Izin Runtime (permission_handler) dan Bukti Konfirmasinya</h3>
+<p>Ketiga izin diminta saat interaksi pertama dengan fitur terkait. Untuk mengambil bukti, izin di-revoke lewat adb (<code>adb shell pm revoke</code>) lalu aplikasi dijalankan ulang sehingga dialog muncul kembali. Setelah tombol <b>Allow</b> ditekan, izin tercatat granted oleh sistem — dibuktikan dengan kelanjutan alur fitur berjalan normal (foto terjepret, koordinat terkunci, push diterima).</p>
+<table class="shotrow nobreak">
+<tr>
+<td style="width:33%"><img src="screenshots/04_permission_dialog_1.png"><div class="cap">Dialog izin CAMERA</div></td>
+<td style="width:33%"><img src="screenshots/05_permission_dialog_lokasi.png"><div class="cap">Dialog izin lokasi</div></td>
+<td style="width:33%"><img src="screenshots/06_permission_dialog_notifikasi.png"><div class="cap">Dialog izin POST_NOTIFICATIONS</div></td>
+</tr>
+</table>
+<table class="nobreak">
+<tr><th>Permission</th><th>Momen permintaan</th><th>Bukti berhasil diberikan</th></tr>
+<tr><td>CAMERA</td><td>Saat tombol <b>Ambil Foto</b> pertama kali ditekan</td><td>Aplikasi kamera sistem terbuka (SS 7) dan preview foto tampil di form (SS 8)</td></tr>
+<tr><td>ACCESS_FINE_LOCATION</td><td>Saat tombol <b>Dapat Lokasi</b> ditekan (dialog Presise/Approximate)</td><td>Koordinat terkunci 37.421998, -122.084000 (SS 9)</td></tr>
+<tr><td>POST_NOTIFICATIONS</td><td>Saat inisialisasi FCM setelah login</td><td>Push notification diterima di status bar (SS 12)</td></tr>
+</table>
+
+<h3>5.2 Alur Tugas Baru (Tab Layout + Kamera + GPS + Upload)</h3>
+<table class="pair nobreak">
+<tr><td style="width:32%"><img src="screenshots/01_new_task_form.png"></td>
+    <td class="expl"><b>SS 1 — Tab New Task.</b> Navigasi TabBar dengan dua tab (List Tugas / New Task). Form memuat judul, deskripsi, kartu Foto Tugas, kartu Lokasi Tugas, dan tombol Simpan Tugas. Header akun (rizal@gmail.com + logout) ada di HomeScreen.</td></tr>
+<tr><td><img src="screenshots/03_form_terisi.png"></td>
+    <td class="expl"><b>SS 3 — Form terisi.</b> Judul "Laporan praktikum PTM 10" dan deskripsi diisi; counter 24/200 menandakan TextFormField dengan maxLength aktif.</td></tr>
+<tr><td><img src="screenshots/07_camera_view.png"></td>
+    <td class="expl"><b>SS 7 — Aplikasi kamera.</b> image_picker mengirim intent <code>android.media.action.IMAGE_CAPTURE</code>; OS membuka aplikasi kamera sistem (virtual scene emulator). Pengguna menekan shutter lalu konfirmasi ✓.</td></tr>
+<tr><td><img src="screenshots/08_photo_preview.png"></td>
+    <td class="expl"><b>SS 8 — Preview foto.</b> Hasil jepretan dikembalikan ke Dart sebagai path file dan ditampilkan dengan <code>Image.file</code>; status "Foto siap, akan diunggah saat disimpan."</td></tr>
+<tr><td><img src="screenshots/09_gps_coordinates.png"></td>
+    <td class="expl"><b>SS 9 — Koordinat GPS.</b> geolocator mengembalikan Position; form menampilkan "Koordinat terkunci: Latitude 37.421998, Longitude -122.084000".</td></tr>
+<tr><td><img src="screenshots/10_list_hasil.png"></td>
+    <td class="expl"><b>SS 10 — Hasil tersimpan.</b> Setelah Simpan Tugas, baris baru tampil di tab List Tugas dengan badge <b>Foto</b> (photo_url tidak null) dan badge <b>37.4220</b> (latitude tidak null) — bukti data tersimpan di Supabase dan dikembalikan ke aplikasi.</td></tr>
+</table>
+
+<h3>5.3 Push Notification FCM</h3>
+<table class="pair nobreak">
+<tr><td style="width:32%"><img src="screenshots/02_list_tab.png"></td>
+    <td class="expl"><b>SS 2 — Tab List Tugas (awal).</b> Kondisi awal daftar tugas kosong; inisialisasi Supabase &amp; Firebase berjalan, izin notifikasi diminta setelah login.</td></tr>
+<tr><td><img src="screenshots/12_push_statusbar.png"></td>
+    <td class="expl"><b>SS 12 — Notifikasi diterima.</b> Aplikasi di background; pesan uji dari Firebase Cloud Messaging (kirim ke token perangkat) diterima dan OS menampilkan notifikasi "Pengingat tugas" di notification tray — bukti FCM berfungsi penuh.</td></tr>
+</table>
+<p>Logcat pendukung: <code>Firebase initialized (FCM ready)</code>, <code>FCM registration token: eTW5GOPaRgmIlSl4pGvdpJ</code> (otomatis ter-upsert ke tabel <code>fcm_tokens</code>), <code>FCM messaging initialized</code>. Saat aplikasi di foreground, pesan yang sama ditampilkan sebagai SnackBar in-app oleh listener <code>FirebaseMessaging.onMessage</code> (durasi 6 detik).</p>
+
+<h3 class="nobreak">Narasi Teknis</h3>
+<div class="narr">
+<p>Pengguna mengisi judul dan deskripsi pada tab New Task, lalu menekan "Ambil Foto". Aksi ini memanggil <code>TaskDraftProvider.capturePhoto()</code> yang menjalankan <code>NativeService.capturePhoto()</code>. Plugin <code>permission_handler</code> memeriksa izin kamera; bila belum diberikan, Flutter menampilkan dialog izin Android dan hasilnya dikembalikan ke aplikasi. Setelah izin disetujui, <code>image_picker</code> mengirim intent <code>IMAGE_CAPTURE</code> ke OS, OS membuka aplikasi kamera sistem, pengguna menekan shutter dan mengonfirmasi, lalu OS menyalin file JPEG ke cache aplikasi sebelum path-nya dikembalikan ke Dart untuk ditampilkan sebagai preview. Tombol "Dapat Lokasi" memanggil <code>geolocator</code> yang meminta izin layanan lokasi lalu membaca posisi dari OS (37.421998, -122.084000). Saat "Simpan Tugas" ditekan, provider mengunggah bytes foto ke bucket <code>todo-photos</code> Supabase Storage pada folder <code>user_id/</code>, memperoleh URL publiknya, lalu menyisipkan baris (judul, deskripsi, photo_url, latitude, longitude) ke tabel <code>todos</code>. Supabase menyimpan data, aplikasi berpindah ke tab List Tugas, dan baris baru tampil dengan badge Foto dan koordinat GPS. Pada sisi notifikasi, token FCM yang diterima dari Google Play Services ter-upsert ke tabel <code>fcm_tokens</code>; pesan uji dari Firebase Console dikirim ke token tersebut dan ditampilkan OS di status bar saat aplikasi berada di background.</p>
+</div>
+
+</body>
+</html>
