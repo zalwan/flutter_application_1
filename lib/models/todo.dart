@@ -4,6 +4,10 @@ class Todo {
     required this.title,
     required this.isDone,
     required this.createdAt,
+    this.description,
+    this.photoUrl,
+    this.latitude,
+    this.longitude,
   });
 
   factory Todo.fromMap(Map<String, dynamic> map) {
@@ -14,6 +18,10 @@ class Todo {
       createdAt:
           DateTime.tryParse(map['created_at'] as String? ?? '')?.toLocal() ??
           DateTime.now(),
+      description: map['description'] as String?,
+      photoUrl: map['photo_url'] as String?,
+      latitude: (map['latitude'] as num?)?.toDouble(),
+      longitude: (map['longitude'] as num?)?.toDouble(),
     );
   }
 
@@ -21,6 +29,15 @@ class Todo {
   final String title;
   final bool isDone;
   final DateTime createdAt;
+
+  /// Kolom baru Praktikum 10 (boleh null agar baris lama tetap valid).
+  final String? description;
+  final String? photoUrl;
+  final double? latitude;
+  final double? longitude;
+
+  bool get hasPhoto => photoUrl != null && photoUrl!.isNotEmpty;
+  bool get hasLocation => latitude != null && longitude != null;
 
   String get formattedDate {
     final day = createdAt.day.toString().padLeft(2, '0');

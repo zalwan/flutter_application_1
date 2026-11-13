@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'home_screen.dart';
 import 'login_screen.dart';
-import 'todo_screen.dart';
 
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key});
@@ -23,7 +23,7 @@ class AuthGate extends StatelessWidget {
         if (session == null) {
           return const LoginScreen();
         }
-        return const TodoScreen();
+        return const HomeScreen();
       },
     );
   }

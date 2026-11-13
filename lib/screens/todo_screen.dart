@@ -4,14 +4,21 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/todo.dart';
 import '../utils/error_messages.dart';
 
-class TodoScreen extends StatefulWidget {
-  const TodoScreen({super.key});
+/// Tab 1 ("List Tugas") pada HomeScreen Praktikum 10.
+///
+/// Isi dan logika inti CRUD sama persis dengan halaman To-Do Praktikum 9;
+/// yang berubah hanya pembungkusnya: Scaffold dan AppBar dipindah ke
+/// HomeScreen, sehingga widget ini bisa ditanam di dalam TabBarView
+/// tanpa mengubah logika bisnis maupun akses database Supabase.
+class TodoListTab extends StatefulWidget {
+  const TodoListTab({super.key});
 
   @override
-  State<TodoScreen> createState() => _TodoScreenState();
+  State<TodoListTab> createState() => _TodoListTabState();
 }
 
-class _TodoScreenState extends State<TodoScreen> {
+class _TodoListTabState extends State<TodoListTab>
+    with AutomaticKeepAliveClientMixin {
   final _client = Supabase.instance.client;
   final _newTodoController = TextEditingController();
 
@@ -19,8 +26,8 @@ class _TodoScreenState extends State<TodoScreen> {
   bool _loading = true;
   String? _error;
 
-  String get _email =>
-      _client.auth.currentUser?.email ?? '(email tidak tersedia)';
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -161,36 +168,6 @@ class _TodoScreenState extends State<TodoScreen> {
     }
   }
 
-  Future<void> _logout() async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Keluar'),
-        content: Text('Keluar dari akun $_email?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Batal'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('Keluar'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed != true) {
-      return;
-    }
-
-    try {
-      await _client.auth.signOut();
-    } catch (error) {
-      _showMessage(messageForError(error));
-    }
-  }
-
   void _showMessage(String message) {
     if (!mounted) {
       return;
@@ -202,19 +179,23 @@ class _TodoScreenState extends State<TodoScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('To-Do List')),
-      body: Column(
-        children: [
-          _AccountHeader(email: _email, onLogout: _logout),
-          Expanded(child: _buildContent()),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _showAddTodoDialog,
-        icon: const Icon(Icons.add),
-        label: const Text('Tambah'),
-      ),
+    super.build(context);
+
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+          child: SizedBox(
+            width: double.infinity,
+            child: FilledButton.tonalIcon(
+              onPressed: _showAddTodoDialog,
+              icon: const Icon(Icons.add),
+              label: const Text('Tambah To-Do Cepat'),
+            ),
+          ),
+        ),
+        Expanded(child: _buildContent()),
+      ],
     );
   }
 
@@ -248,7 +229,7 @@ class _TodoScreenState extends State<TodoScreen> {
       onRefresh: () => _loadTodos(showSpinner: false),
       child: ListView.separated(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(8, 8, 8, 88),
+        padding: const EdgeInsets.fromLTRB(8, 8, 8, 24),
         itemCount: _todos.length,
         separatorBuilder: (_, _) => const Divider(height: 1),
         itemBuilder: (context, index) {
@@ -269,7 +250,34 @@ class _TodoScreenState extends State<TodoScreen> {
                     )
                   : null,
             ),
-            subtitle: Text(todo.formattedDate),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(todo.formattedDate),
+                if (todo.description?.isNotEmpty ?? false)
+                  Text(
+                    todo.description!,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                if (todo.hasPhoto || todo.hasLocation)
+                  Wrap(
+                    spacing: 12,
+                    children: [
+                      if (todo.hasPhoto)
+                        _MetaBadge(
+                          icon: Icons.photo_camera_outlined,
+                          label: 'Foto',
+                        ),
+                      if (todo.hasLocation)
+                        _MetaBadge(
+                          icon: Icons.location_on_outlined,
+                          label: todo.latitude!.toStringAsFixed(4),
+                        ),
+                    ],
+                  ),
+              ],
+            ),
             trailing: IconButton(
               tooltip: 'Hapus',
               icon: const Icon(Icons.delete_outline),
@@ -283,52 +291,30 @@ class _TodoScreenState extends State<TodoScreen> {
   }
 }
 
-class _AccountHeader extends StatelessWidget {
-  const _AccountHeader({required this.email, required this.onLogout});
+class _MetaBadge extends StatelessWidget {
+  const _MetaBadge({required this.icon, required this.label});
 
-  final String email;
-  final VoidCallback onLogout;
+  final IconData icon;
+  final String label;
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-      child: Card(
-        margin: EdgeInsets.zero,
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Row(
-            children: [
-              CircleAvatar(
-                child: Text(
-                  email.isEmpty ? '?' : email.characters.first.toUpperCase(),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Masuk sebagai', style: textTheme.labelMedium),
-                    Text(
-                      email,
-                      style: textTheme.titleSmall,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 8),
-              OutlinedButton.icon(
-                onPressed: onLogout,
-                icon: const Icon(Icons.logout, size: 18),
-                label: const Text('Logout'),
-              ),
-            ],
+      padding: const EdgeInsets.only(top: 4),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: colorScheme.primary),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: colorScheme.primary,
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

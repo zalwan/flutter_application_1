@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:flutter_application_1/models/todo.dart';
+import 'package:flutter_application_1/providers/task_draft_provider.dart';
 import 'package:flutter_application_1/screens/login_screen.dart';
 import 'package:flutter_application_1/screens/register_screen.dart';
 import 'package:flutter_application_1/utils/validators.dart';
@@ -51,6 +52,70 @@ void main() {
       expect(todo.title, 'Belajar Flutter');
       expect(todo.isDone, isTrue);
       expect(todo.formattedDate, '06/11/2026');
+    });
+
+    test('membaca kolom baru Praktikum 10 (foto, lokasi, deskripsi)', () {
+      final todo = Todo.fromMap({
+        'id': 'x1',
+        'title': 'Tugas bersensor',
+        'is_done': false,
+        'created_at': '2026-11-13T01:00:00.000Z',
+        'description': 'Integrasi kamera dan GPS',
+        'photo_url': 'https://example.supabase.co/storage/v1/object/public/todo-photos/u/1.jpg',
+        'latitude': -6.2,
+        'longitude': 106.816666,
+      });
+
+      expect(todo.description, 'Integrasi kamera dan GPS');
+      expect(todo.hasPhoto, isTrue);
+      expect(todo.hasLocation, isTrue);
+      expect(todo.latitude, -6.2);
+      expect(todo.longitude, closeTo(106.8167, 0.001));
+    });
+
+    test('baris lama tanpa kolom baru tetap valid (backward compatible)', () {
+      final todo = Todo.fromMap({
+        'id': 'x2',
+        'title': 'Tugas lama',
+        'is_done': false,
+        'created_at': '2026-11-06T01:00:00.000Z',
+      });
+
+      expect(todo.hasPhoto, isFalse);
+      expect(todo.hasLocation, isFalse);
+      expect(todo.description, isNull);
+    });
+  });
+
+  group('TaskDraftProvider', () {
+    test('menolak submit tanpa judul tanpa menyentuh jaringan', () async {
+      final draft = TaskDraftProvider();
+
+      final error = await draft.submit(title: '   ');
+
+      expect(error, 'Judul tugas wajib diisi.');
+      expect(draft.submitting, isFalse);
+      expect(draft.hasPhoto, isFalse);
+      expect(draft.hasLocation, isFalse);
+    });
+
+    test('menolak judul lebih dari 200 karakter', () async {
+      final draft = TaskDraftProvider();
+
+      final error = await draft.submit(title: 'a' * 201);
+
+      expect(error, 'Judul tugas maksimal 200 karakter.');
+    });
+
+    test('reset mengosongkan draft', () {
+      final draft = TaskDraftProvider();
+
+      draft.reset();
+
+      expect(draft.hasPhoto, isFalse);
+      expect(draft.hasLocation, isFalse);
+      expect(draft.capturingPhoto, isFalse);
+      expect(draft.locating, isFalse);
     });
   });
 

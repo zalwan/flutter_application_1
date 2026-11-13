@@ -12,21 +12,40 @@ Setiap pengguna hanya dapat melihat dan mengubah to-do miliknya sendiri.
 - CRUD to-do: tambah, tandai selesai, hapus, dan pull-to-refresh.
 - Isolasi data antar pengguna dijaga oleh Row Level Security (RLS) di PostgreSQL.
 
+## Fitur Praktikum 10 (TabLayout + Native/Sensor)
+
+- Navigasi `DefaultTabController` dengan 2 tab: **List Tugas** dan **New Task**.
+- **Kamera** (`image_picker`): ambil foto dari form New Task, preview thumbnail,
+  lalu diunggah ke Supabase Storage bucket `todo-photos` saat tugas disimpan.
+- **GPS** (`geolocator`): ambil koordinat latitude/longitude terkini dari form New Task.
+- **Permission** (`permission_handler`): izin kamera, lokasi, dan notifikasi
+  diminta serentak saat HomeScreen dibuka, dengan pesan arahan ke Settings
+  bila ditolak permanen.
+- **Push Notification** (`firebase_messaging`): registration ID disimpan ke tabel
+  `fcm_tokens`; pesan foreground ditampilkan sebagai banner in-app.
+  *Catatan: butuh konfigurasi Firebase (google-services.json) — bila belum
+  dikonfigurasi, aplikasi tetap berjalan normal tanpa push notification.*
+
 ## Struktur Kode
 
 ```
 lib/
-  main.dart                        # Inisialisasi Supabase + MaterialApp
+  main.dart                        # Inisialisasi Supabase + Provider + Firebase
   config/supabase_config.dart      # Baca URL & publishable key dari --dart-define
-  models/todo.dart                 # Model To-Do
-  screens/auth_gate.dart           # Memilih halaman login atau To-Do sesuai status sesi
+  models/todo.dart                 # Model To-Do (+ description, photo_url, lat/lng)
+  providers/task_draft_provider.dart # State draft tugas baru (foto, koordinat, submit)
+  services/native_service.dart     # Permission, kamera, GPS, FCM
+  screens/auth_gate.dart           # Memilih halaman login atau HomeScreen
+  screens/home_screen.dart         # TabBar + TabBarView + header akun + logout
+  screens/todo_screen.dart         # Tab "List Tugas" (logika inti Praktikum 9)
+  screens/new_task_screen.dart     # Tab "New Task" (kamera + GPS + submit)
   screens/login_screen.dart        # Form login
   screens/register_screen.dart     # Form registrasi
-  screens/todo_screen.dart         # Daftar to-do + email pengguna + tombol logout
   screens/setup_required_screen.dart # Petunjuk bila kredensial belum diisi
   utils/validators.dart            # Validasi email & password
   utils/error_messages.dart        # Pesan error Supabase dalam Bahasa Indonesia
-supabase/schema.sql                # Tabel todos + kebijakan RLS (jalankan di SQL Editor)
+supabase/schema.sql                # Tabel todos + RLS + storage + fcm_tokens
+supabase/migration_ptm10.sql       # Migration kolom baru (jalankan di SQL Editor)
 integration_test/account_isolation_test.dart # Uji isolasi data 2 akun
 ```
 
@@ -34,10 +53,17 @@ integration_test/account_isolation_test.dart # Uji isolasi data 2 akun
 
 1. Buat project baru di [supabase.com](https://supabase.com).
 2. Buka **SQL Editor > New query**, tempel seluruh isi `supabase/schema.sql`, lalu **Run**.
+   Untuk project yang sudah jalan sejak Praktikum 9, cukup jalankan
+   `supabase/migration_ptm10.sql`.
 3. Buka **Authentication > Sign In / Providers > Email**, lalu matikan
    **Confirm email** agar pengguna bisa langsung login setelah mendaftar.
 4. Buka **Project Settings > API Keys**, salin **Project URL** dan **publishable key**
    (kalau project kamu masih memakai key lama, `anon` key juga bisa dipakai).
+5. (Opsional, untuk push notification) Buat project di
+   [console.firebase.google.com](https://console.firebase.google.com), daftarkan
+   aplikasi Android dengan package `com.example.flutter_application_1`, unduh
+   `google-services.json`, letakkan di `android/app/`, dan tambahkan plugin
+   `com.google.gms.google-services` pada `android/app/build.gradle`.
 
 ## Menjalankan Aplikasi
 
